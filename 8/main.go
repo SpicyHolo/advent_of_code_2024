@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"day8/grid"
 	"fmt"
 	"os"
 )
@@ -11,7 +10,7 @@ type position struct {
 	X, Y int
 }
 
-// Parses inputs from a file, returns an map, for each character an array of all position where they were found
+// Parses inputs from a file, returns an map, for each character an array of all position where they were found (and map dimensions.)
 func readFile(filename string) (map[byte][]position, int, int, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -24,7 +23,7 @@ func readFile(filename string) (map[byte][]position, int, int, error) {
 	res := make(map[byte][]position)
 	for scanner.Scan() {
 		line := scanner.Text()
-
+		// Add each character to a map
 		for x, char := range line {
 			if char == '.' {
 				continue
@@ -68,9 +67,11 @@ func pointsOnLine2(pos1, pos2 position, maxX, maxY int) []position {
 	dx := pos2.X - pos1.X
 	dy := pos2.Y - pos1.Y
 
+	// Iterate through points on a line, defined by the input pair of points, one loop for each direction (positive and negative)
 	var points []position
 	for i := 0; true; i++ {
 		point := position{pos1.X - i*dx, pos1.Y - i*dy}
+		// Checks bounds
 		if point.X < 0 || point.X >= maxX || point.Y < 0 || point.Y >= maxY {
 			break
 		}
@@ -102,13 +103,14 @@ func getPairs[T any](values []T) [][2]T {
 
 func part1(antennas map[byte][]position, maxX, maxY int) {
 	uniquePointsSet := make(map[position]struct{})
-
+	// grid := grid.NewTextGrid(maxX, maxY)
 	for _, v := range antennas {
 		pairs := getPairs(v)
 		for _, pair := range pairs {
 			new_points := pointsOnLine(pair[0], pair[1], maxX, maxY)
 			for _, point := range new_points {
 				uniquePointsSet[point] = struct{}{}
+				// grid.SetChar(point.X, point.Y, '#')
 			}
 		}
 	}
@@ -119,15 +121,14 @@ func part1(antennas map[byte][]position, maxX, maxY int) {
 
 func part2(antennas map[byte][]position, maxX, maxY int) {
 	uniquePointsSet := make(map[position]struct{})
-	grid := grid.NewTextGrid(maxX, maxY)
-
+	// grid := grid.NewTextGrid(maxX, maxY)
 	for _, v := range antennas {
 		pairs := getPairs(v)
 		for _, pair := range pairs {
 			new_points := pointsOnLine2(pair[0], pair[1], maxX, maxY)
 			for _, point := range new_points {
 				uniquePointsSet[point] = struct{}{}
-				grid.SetChar(point.X, point.Y, '#')
+				// grid.SetChar(point.X, point.Y, '#')
 			}
 		}
 	}
