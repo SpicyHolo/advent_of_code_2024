@@ -1,1 +1,3 @@
 *.txt
+.venv
+./14/dst
