@@ -1,14 +1,14 @@
 package warehouse1
 
 import (
-	. "day15/utils"
+	"day15/utils"
 	"fmt"
 	"strings"
 )
 
 type State struct {
 	Map      [][]byte
-	Pos      Vec2D
+	Pos      utils.Vec2D
 	Commands string
 	C_ptr    int
 }
@@ -40,7 +40,7 @@ func NewState(Map [][]byte, commands string) (*State, error) {
 		for x, char := range row {
 			switch char {
 			case '@':
-				s.Pos = *NewVec2D(x, y)
+				s.Pos = utils.Vec2D{X: x, Y: y}
 			}
 		}
 	}
@@ -63,25 +63,25 @@ func deepCopy(original [][]byte) [][]byte {
 }
 
 // Checkers
-func (s *State) isBox(pos Vec2D) bool {
+func (s *State) isBox(pos utils.Vec2D) bool {
 	char := s.getValue(pos)
 	return char == '[' || char == ']'
 }
 
-func (s *State) isFree(pos Vec2D) bool {
+func (s *State) isFree(pos utils.Vec2D) bool {
 	return s.getValue(pos) == '.'
 }
 
-func (s *State) getValue(pos Vec2D) byte {
+func (s *State) getValue(pos utils.Vec2D) byte {
 	return s.Map[pos.Y][pos.X]
 }
 
-func (s *State) setValue(pos Vec2D, char byte) {
+func (s *State) setValue(pos utils.Vec2D, char byte) {
 	s.Map[pos.Y][pos.X] = char
 }
 
 // Update's robot position (also visually)
-func (s *State) updateRobot(dir Vec2D) {
+func (s *State) updateRobot(dir utils.Vec2D) {
 	newPos := s.Pos.Add(dir)
 	s.setValue(s.Pos, '.')
 	s.setValue(newPos, '@')
@@ -97,9 +97,9 @@ For each we add the stuff behind it in movement's direction
 After that we move everything that's in the created array.const
 Works for both horizontal and vertical movement <3
 */
-func (s *State) updateEverything(dir Vec2D) bool {
-	toUpdate := []Vec2D{s.Pos}
-	visited := make(Set[Vec2D]) // Keep a set to only visit each location once, faster than searching through toUpdate array
+func (s *State) updateEverything(dir utils.Vec2D) bool {
+	toUpdate := []utils.Vec2D{s.Pos}
+	visited := make(utils.Set[utils.Vec2D]) // Keep a set to only visit each location once, faster than searching through toUpdate array
 	i := 0
 
 	// Go over the FIFO queue
@@ -118,13 +118,13 @@ func (s *State) updateEverything(dir Vec2D) bool {
 
 			// Add box's second part
 			if s.getValue(new_pos) == '[' {
-				if right := new_pos.Add(DIRECTIONS[RIGHT]); !visited.Contains(right) {
+				if right := new_pos.Add(utils.DIRECTIONS[utils.RIGHT]); !visited.Contains(right) {
 					toUpdate = append(toUpdate, right)
 					visited.Add(right)
 				}
 			}
 			if s.getValue(new_pos) == ']' {
-				if left := new_pos.Add(DIRECTIONS[LEFT]); !visited.Contains(left) {
+				if left := new_pos.Add(utils.DIRECTIONS[utils.LEFT]); !visited.Contains(left) {
 					toUpdate = append(toUpdate, left)
 					visited.Add(left)
 				}
@@ -160,7 +160,7 @@ func (s *State) updateEverything(dir Vec2D) bool {
 }
 
 // Moves the robot, and boxes
-func (s *State) move(dir Vec2D) {
+func (s *State) move(dir utils.Vec2D) {
 	newPos := s.Pos.Add(dir)
 	switch {
 
@@ -185,7 +185,7 @@ func (s *State) NextCommand() bool {
 	// Fetch command (direction)
 	command := s.Commands[s.C_ptr]
 	s.C_ptr++
-	dir := COMMANDS[command]
+	dir := utils.COMMANDS[command]
 
 	s.move(dir)
 	return true
