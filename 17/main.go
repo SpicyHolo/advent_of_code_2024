@@ -41,14 +41,15 @@ var OPCODE2OPERATION = map[int]string{
 }
 
 func parseInput(filename string) (map[string]int, []int, error) {
-	registers := make(map[string]int)
 
+	// Read file
 	buf, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, nil, fmt.Errorf("could not read file: %w", err)
 
 	}
 
+	// Parse file
 	regex_reg := regexp.MustCompile(`Register [A-C]: (\d+)`)
 	regex_program := regexp.MustCompile(`Program: ((?:\d,|\d$)+)`)
 
@@ -68,12 +69,21 @@ func parseInput(filename string) (map[string]int, []int, error) {
 	if err3 != nil {
 		return nil, nil, fmt.Errorf("could not convert to int: %w", err3)
 	}
+
+	// Create registers, commands
+	registers := make(map[string]int)
 	registers["A"] = a
 	registers["B"] = b
 	registers["C"] = c
 
 	program_nums := strings.Split(matches_program[0][1], ",")
+<<<<<<< HEAD
 	program := make([]int, len(program_nums) - 1)
+=======
+
+	// Convert an array of strings to integers
+	program := make([]int, len(program_nums))
+>>>>>>> a7ef85a (day 17 changes)
 	for i, num := range program_nums {
     if i == len(program_nums) - 1 {
       break
@@ -153,7 +163,9 @@ func outputToStr(output []int) string {
 	return strings.Join(outputStr, ",")
 }
 
-func solve(filename string) {
+func part1(filename string) {
+	fmt.Println("Part I")
+
 	// Parse Input
 	reg, program, err := parseInput(filename)
 	if err != nil {
@@ -176,7 +188,7 @@ func solve(filename string) {
 
 	// Execute program
 	for {
-		fmt.Println(computer)
+		// fmt.Println(computer)
 		res := computer.nextCommand()
 		// No commands left
 		if res == -2 {
@@ -234,17 +246,27 @@ func solver(A, B, C int) (sol []int) {
 	// 	return
 	// }
 
-	for A > 0 {
-		B = B % 8
-		B = B ^ 1
-		C = A >> B
-		B = B ^ 5
-		A = A >> 3
-		B = B ^ C
-		sol = append(sol, B%8)
+func find(program []int, ans int) int {
+	if len(program) == 0 {
+		return ans
 	}
-	print(B)
-	return
+	a, b, c := 0, 0, 0
+	for t := 0; t < 8; t++ {
+		a = ans<<3 | t
+		b = a & (8 - 1)
+		b ^= 1
+		c = a >> b
+		b ^= 5
+		b ^= c
+		if b&(8-1) == program[len(program)-1] {
+			sub := find(program[:len(program)-1], a)
+			if sub == -1 {
+				continue
+			}
+			return sub
+		}
+	}
+	return -1
 }
 
 func main() {
