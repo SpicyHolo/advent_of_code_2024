@@ -73,8 +73,11 @@ func parseInput(filename string) (map[string]int, []int, error) {
 	registers["C"] = c
 
 	program_nums := strings.Split(matches_program[0][1], ",")
-	program := make([]int, len(program_nums))
+	program := make([]int, len(program_nums) - 1)
 	for i, num := range program_nums {
+    if i == len(program_nums) - 1 {
+      break
+    }
 		numInt, err := strconv.Atoi(num)
 		if err != nil {
 			return nil, nil, fmt.Errorf("could not convert to int: %w", err)
@@ -193,36 +196,36 @@ func solve(filename string) {
 	fmt.Println("Output: ", outputToStr(output))
 }
 
-func solve2(filename string) {
+func part2(filename string) int {
 	// Parse Input
 	reg, program, err := parseInput(filename)
+  A := 0
+  B := reg["B"]
+  C := reg["C"]
 	if err != nil {
-		fmt.Println(err)
-		return
+	 	fmt.Println(err)
+	  return 0
 	}
+	for i, code := range program {
+		fmt.Println("i: ", i)
+    B = B % 8
+		B = B ^ 1
+		c_shift := B
 
-	// Initialise
-	computer := Computer{reg, program, 0}
-	var output []int
+		B = B ^ 5
+		C = B ^ code
+    B = B ^ C
+		temp_a := C << c_shift
+    A += temp_a
+    fmt.Println(A)
+    A = A << 3
 
-	// Modify register A
-	if len(os.Args) > 2 {
-		newA, err := strconv.Atoi(os.Args[2])
-		if err != nil {
-			fmt.Println("error converting arg 2 to string: %w", err)
-		}
-		computer.Reg["A"] = newA
 	}
-
-	output = solver(computer.Reg["A"], computer.Reg["B"], computer.Reg["C"])
-
-	if slices.Equal(output, computer.Prog) {
-		fmt.Println("output == program")
-	}
-
-	fmt.Println("Program: \t", outputToStr(program))
-	fmt.Println("Output: \t", outputToStr(output))
+  sol := solver(12, 0, 0) 
+  fmt.Println(program, sol)
+	return 12
 }
+
 func solver(A, B, C int) (sol []int) {
 	// Parse Input
 	// reg, program, err := parseInput("input.txt")
@@ -244,25 +247,9 @@ func solver(A, B, C int) (sol []int) {
 	return
 }
 
-func part2(B, C int, program []int) int {
-	// A := 0
-	for i, code := range program {
-		fmt.Println("i: ", i)
-		B = B ^ 1
-		c_shift := B
-
-		B = B ^ 5
-		C = B ^ code
-		temp_a := C << c_shift
-		fmt.Println(temp_a)
-	}
-	return 0
-}
-
-// }
 func main() {
 	if len(os.Args) > 1 {
-		solve2(os.Args[1])
+		part2(os.Args[1])
 		return
 	}
 	fmt.Println("not enough arguments, expected filename.")
