@@ -27,7 +27,7 @@ func parseInput(filename string) ([]string, []string, error) {
 	}
 
 	designs := re.FindAllString(blocks[1], -1)
-	if patterns == nil {
+	if designs == nil {
 		return nil, nil, fmt.Errorf("Invalid design format, should contain design [a-z] strings, each in a new line.")
 	}
 
