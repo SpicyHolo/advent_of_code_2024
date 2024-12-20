@@ -1,3 +1,4 @@
 *.txt
 .venv
 ./14/dst
+fetch.go
